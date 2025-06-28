@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from extensions import mysql
+import datetime
 
 user_bp = Blueprint('user', __name__)
 
@@ -13,48 +14,65 @@ def list_user():
     cursor.close()
     return jsonify([{ 'id_user': r[0], 'nama': r[1], 'email': r[2], 'password': r[3], 'role': r[4]} for r in rows])
 
-
 @user_bp.route('/pemesanan', methods=['POST'])
 @jwt_required()
 def pesan_tiket():
     data = request.get_json()
-    id_jadwal = data.get('id_jadwal')
-    jumlah_tiket = data.get('jumlah_tiket')
-    nama_penumpang_list = data.get('nama_penumpang')  # list of names
     id_user = int(get_jwt_identity())
+    id_jadwal = data.get('id_jadwal')
+    nama_penumpang_list = data.get('nama_penumpang')  # array
 
-    if not id_jadwal or not jumlah_tiket or not nama_penumpang_list:
-        return jsonify({'error': 'ID jadwal, jumlah tiket, dan nama penumpang wajib diisi'}), 400
+    if not id_jadwal or not nama_penumpang_list or not isinstance(nama_penumpang_list, list):
+        return jsonify({'error': 'Data tidak lengkap atau format salah'}), 400
 
-    if len(nama_penumpang_list) != jumlah_tiket:
-        return jsonify({'error': 'Jumlah nama penumpang harus sesuai dengan jumlah tiket'}), 400
+    jumlah_tiket = len(nama_penumpang_list)
 
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT kursi_tersedia, harga FROM jadwal_bus WHERE id_jadwal = %s", (id_jadwal,))
+
+    # Cek jadwal
+    cursor.execute("SELECT harga, kursi_tersedia FROM jadwal_bus WHERE id_jadwal = %s", (id_jadwal,))
     jadwal = cursor.fetchone()
     if not jadwal:
         cursor.close()
         return jsonify({'error': 'Jadwal tidak ditemukan'}), 404
 
-    kursi_tersedia, harga_tiket = jadwal
+    harga_satuan = float(jadwal[0])
+    kursi_tersedia = int(jadwal[1])
+
     if kursi_tersedia < jumlah_tiket:
         cursor.close()
         return jsonify({'error': 'Jumlah kursi tidak mencukupi'}), 400
 
-    total_bayar = jumlah_tiket * float(harga_tiket)
-    nama_penumpang_string = ", ".join(nama_penumpang_list)
+    tiket_dibuat = []
 
-    cursor.execute("""
-        INSERT INTO pemesanan (id_user, id_jadwal, nama_penumpang, jumlah_tiket, total_bayar, status_pembayaran)
-        VALUES (%s, %s, %s, %s, %s, %s)
-    """, (id_user, id_jadwal, nama_penumpang_string, jumlah_tiket, total_bayar, 'pending'))
+    for nama in nama_penumpang_list:
+        total_bayar = harga_satuan  # selalu 1 tiket per baris
+        cursor.execute("""
+            INSERT INTO pemesanan (id_user, id_jadwal, nama_penumpang, jumlah_tiket, total_bayar)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (id_user, id_jadwal, nama, 1, total_bayar))
 
-    cursor.execute("UPDATE jadwal_bus SET kursi_tersedia = kursi_tersedia - %s WHERE id_jadwal = %s",
-                   (jumlah_tiket, id_jadwal))
+        id_pemesanan = cursor.lastrowid
+        kode_tiket = f"ETK-{datetime.datetime.now().strftime('%Y%m%d')}-{id_pemesanan:04d}"
+
+        cursor.execute("UPDATE pemesanan SET kode_tiket = %s WHERE id_pemesanan = %s", (kode_tiket, id_pemesanan))
+
+        tiket_dibuat.append({
+            'nama_penumpang': nama,
+            'kode_tiket': kode_tiket,
+            'total_bayar': total_bayar
+        })
+
+    # Update kursi tersedia
+    cursor.execute("UPDATE jadwal_bus SET kursi_tersedia = kursi_tersedia - %s WHERE id_jadwal = %s", (jumlah_tiket, id_jadwal))
 
     mysql.connection.commit()
     cursor.close()
-    return jsonify({'message': 'Pemesanan berhasil', 'total_bayar': total_bayar}), 201
+
+    return jsonify({
+        'message': 'Tiket berhasil dipesan per orang',
+        'data': tiket_dibuat
+    }), 201
 
 @user_bp.route('/upload-bukti', methods=['POST'])
 @jwt_required()
@@ -68,6 +86,47 @@ def upload_bukti():
     mysql.connection.commit()
     cursor.close()
     return jsonify({'message': 'Bukti pembayaran berhasil diupload'})
+
+@user_bp.route('/etiket', methods=['GET'])
+@jwt_required()
+def lihat_etiket():
+    user_id = int(get_jwt_identity())
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        SELECT 
+            p.id_pemesanan,
+            p.kode_tiket,
+            p.nama_penumpang,
+            p.total_bayar,
+            j.nama_bus,
+            j.asal,
+            j.tujuan,
+            j.tanggal_berangkat,
+            j.jam_berangkat
+        FROM pemesanan p
+        JOIN jadwal_bus j ON p.id_jadwal = j.id_jadwal
+        WHERE p.id_user = %s AND p.status_pembayaran = 'diterima'
+        ORDER BY p.created_at DESC
+    """, (user_id,))
+    rows = cursor.fetchall()
+    cursor.close()
+
+    hasil = []
+    for row in rows:
+        hasil.append({
+            'id_pemesanan': row[0],
+            'kode_tiket': row[1],
+            'nama_penumpang': row[2],
+            'total_bayar': float(row[3]),
+            'bus': row[4],
+            'asal': row[5],
+            'tujuan': row[6],
+            'tanggal': str(row[7]),
+            'jam_berangkat': str(row[8])
+        })
+
+    return jsonify({'e_tiket': hasil})
+
 
 @user_bp.route('/histori', methods=['GET'])
 @jwt_required()
