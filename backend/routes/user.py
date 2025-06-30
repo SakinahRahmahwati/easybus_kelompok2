@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from extensions import mysql
 import datetime
+from utils.logger import kirim_log
 
 user_bp = Blueprint('user', __name__)
 
@@ -67,6 +68,7 @@ def pesan_tiket():
     cursor.execute("UPDATE jadwal_bus SET kursi_tersedia = kursi_tersedia - %s WHERE id_jadwal = %s", (jumlah_tiket, id_jadwal))
 
     mysql.connection.commit()
+    kirim_log("Pemesanan Tiket", f"{jumlah_tiket} tiket dipesan pada jadwal {id_jadwal}", user_id=id_user)
     cursor.close()
 
     return jsonify({
@@ -84,6 +86,7 @@ def upload_bukti():
     cursor = mysql.connection.cursor()
     cursor.execute("INSERT INTO bukti_pembayaran (id_pemesanan, file_path) VALUES (%s, %s)", (id_pemesanan, url))
     mysql.connection.commit()
+    kirim_log("Upload Bukti Pembayaran", f"Bukti diunggah untuk pemesanan ID {id_pemesanan}", user_id=get_jwt_identity())
     cursor.close()
     return jsonify({'message': 'Bukti pembayaran berhasil diupload'})
 

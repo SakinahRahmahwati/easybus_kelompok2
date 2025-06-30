@@ -1,8 +1,9 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from extensions import mysql, redis_client
 from middlewares.role_required import admin_required
 import json
+from utils.logger import kirim_log
 
 jadwal_bp = Blueprint('jadwal', __name__)
 
@@ -113,6 +114,7 @@ def update_jadwal(id):
         id
     ))
     mysql.connection.commit()
+    kirim_log("Update Jadwal", f"Jadwal ID {id} berhasil diubah", user_id=get_jwt_identity())
     cursor.close()
     redis_client.delete('jadwal:all')
     return jsonify({'message': 'Jadwal berhasil diperbarui'}), 200
@@ -127,6 +129,7 @@ def delete_jadwal(id):
     cursor = mysql.connection.cursor()
     cursor.execute("DELETE FROM jadwal_bus WHERE id_jadwal = %s", (id,))
     mysql.connection.commit()
+    kirim_log("Hapus Jadwal", f"Jadwal ID {id} berhasil dihapus", user_id=get_jwt_identity())
     cursor.close()
     redis_client.delete('jadwal:all')
     return jsonify({'message': 'Jadwal berhasil dihapus'}), 200

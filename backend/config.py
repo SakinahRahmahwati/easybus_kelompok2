@@ -5,4 +5,4 @@ class Config:
     MYSQL_DB = 'easybus'
     MYSQL_SSL_DISABLED = True
     JWT_SECRET_KEY = 'your-secret-key'
-    CORS_ORIGINS = ['http://localhost:8080']
+    CORS_ORIGINS = ['http://localhost:8081']

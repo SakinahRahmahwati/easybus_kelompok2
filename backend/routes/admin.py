@@ -1,8 +1,9 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from extensions import mysql
 from middlewares.role_required import admin_required
 from werkzeug.security import generate_password_hash
+from utils.logger import kirim_log
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -92,6 +93,7 @@ def verifikasi(id):
     status = data.get('status')  # 'diterima' atau 'ditolak'
     cursor = mysql.connection.cursor()
     cursor.execute("UPDATE pemesanan SET status_pembayaran = %s WHERE id_pemesanan = %s", (status, id))
+    kirim_log("Verifikasi Pembayaran", f"Status pemesanan ID {id} diubah menjadi {status}", user_id=get_jwt_identity())
     mysql.connection.commit()
     cursor.close()
     return jsonify({'message': 'Verifikasi berhasil'})
@@ -169,8 +171,10 @@ def delete_user(user_id):
         
         cursor.execute("DELETE FROM user WHERE id_user = %s", (user_id,))
         mysql.connection.commit()
+        kirim_log("Hapus User", f"User ID {user_id} berhasil dihapus", user_id=get_jwt_identity())
         cursor.close()
 
         return jsonify({'message': 'User berhasil dihapus'}), 200
     except Exception as e:
+        kirim_log("Error Delete User", str(e), user_id=get_jwt_identity())
         return jsonify({'error': f'Gagal menghapus user: {str(e)}'}), 500

@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token
 from extensions import mysql
+from utils.logger import kirim_log
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -21,6 +22,7 @@ def login():
             'email': user[2],
             'role': user[4]
         })
+        kirim_log("Login", f"User {user[1]} berhasil login", user_id=user[0])
         return jsonify({
             'message': 'Login berhasil',
             'token': token,
