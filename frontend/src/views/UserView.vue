@@ -7,9 +7,9 @@
         <!-- Tombol untuk membuka form tambah data -->
         <router-link to="/add-user">
           <button class="btn btn-outline-light">
-            <i class="fas fa-plus-circle"></i>  ADD DATA
+            <i class="fas fa-plus-circle"></i> ADD DATA
           </button>
-        </router-link>      
+        </router-link>
       </div>
 
       <!-- Form tambah data user -->
@@ -19,15 +19,18 @@
           <form @submit.prevent="addUser">
             <div class="mb-3">
               <label for="namaUser" class="form-label">Nama User</label>
-              <input type="text" id="namaUser" v-model="newUser.nama" class="form-control" placeholder="Masukkan Nama User" required />
+              <input type="text" id="namaUser" v-model="newUser.nama" class="form-control"
+                placeholder="Masukkan Nama User" required />
             </div>
             <div class="mb-3">
               <label for="email" class="form-label">Email</label>
-              <input type="email" id="email" v-model="newUser.email" class="form-control" placeholder="Masukkan Email" required />
+              <input type="email" id="email" v-model="newUser.email" class="form-control" placeholder="Masukkan Email"
+                required />
             </div>
             <div class="mb-3">
               <label for="password" class="form-label">Password</label>
-              <input type="password" id="password" v-model="newUser.password" class="form-control" placeholder="Masukkan Password" required />
+              <input type="password" id="password" v-model="newUser.password" class="form-control"
+                placeholder="Masukkan Password" required />
             </div>
             <div class="mb-3">
               <label for="role" class="form-label">Role</label>
@@ -67,13 +70,11 @@
                 <td>{{ user.email }}</td>
                 <td>{{ user.role }}</td>
                 <td class="text-center">
-                  <button 
-                    @click="confirmDelete(user)" 
-                    class="btn btn-sm btn-danger">
+                  <button @click="confirmDelete(user)" class="btn btn-sm btn-danger">
                     <i class="fas fa-trash-alt"></i>
                   </button>
                 </td>
-              </tr>   
+              </tr>
             </tbody>
           </table>
         </div>
@@ -98,8 +99,8 @@ export default {
         password: '',
         role: 'customer'
       },
-      showDeleteModal: false, 
-      userToDelete: null, 
+      showDeleteModal: false,
+      userToDelete: null,
     };
   },
   created() {
@@ -110,7 +111,12 @@ export default {
   },
   methods: {
     getUser() {
-      axios.get('http://127.0.0.1:5000/user')
+      const token = localStorage.getItem('token');
+      axios.get('/api/user', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
         .then(response => {
           this.users = response.data;
         })
@@ -159,7 +165,8 @@ export default {
 
 <style scoped>
 .bg-dark-blue {
-  background: linear-gradient(145deg, #34495e, #2c3e50) !important; /* Warna biru dongker */
+  background: linear-gradient(145deg, #34495e, #2c3e50) !important;
+  /* Warna biru dongker */
   color: #fff !important;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
   border-radius: 12px;
@@ -183,7 +190,8 @@ export default {
   width: 100%;
 }
 
-th, td {
+th,
+td {
   padding: 12px;
   text-align: center;
   border: 1px solid #ddd;

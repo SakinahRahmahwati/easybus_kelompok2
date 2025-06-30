@@ -68,7 +68,7 @@ export default {
     async handleLogin() {
       try {
         // Mengirim request login ke backend
-        const { data } = await axios.post("http://localhost:5000/login", {
+        const { data } = await axios.post("/api/login", {
           email: this.email,
           password: this.password,
         });
