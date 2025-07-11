@@ -82,14 +82,22 @@ def pesan_tiket():
 def upload_bukti():
     data = request.get_json()
     url = data.get('url') 
-    id_pemesanan = data.get('id_pemesanan')
+    id_list = data.get('id_pemesanan_list')  # ganti dari satu ID ke list
+
+    if not id_list or not isinstance(id_list, list):
+        return jsonify({'error': 'Daftar ID pemesanan tidak valid'}), 400
 
     cursor = mysql.connection.cursor()
-    cursor.execute("INSERT INTO bukti_pembayaran (id_pemesanan, file_path) VALUES (%s, %s)", (id_pemesanan, url))
+    for id_pemesanan in id_list:
+        cursor.execute(
+            "INSERT INTO bukti_pembayaran (id_pemesanan, file_path) VALUES (%s, %s)",
+            (id_pemesanan, url)
+        )
+
     mysql.connection.commit()
-    kirim_log("Upload Bukti Pembayaran", f"Bukti diunggah untuk pemesanan ID {id_pemesanan}", user_id=get_jwt_identity())
+    kirim_log("Upload Bukti Pembayaran", f"Bukti diunggah untuk {len(id_list)} pemesanan", user_id=get_jwt_identity())
     cursor.close()
-    return jsonify({'message': 'Bukti pembayaran berhasil diupload'})
+    return jsonify({'message': 'Bukti pembayaran berhasil diupload untuk semua pesanan'})
 
 @user_bp.route('/etiket/<int:id_pemesanan>', methods=['GET'])
 @jwt_required()

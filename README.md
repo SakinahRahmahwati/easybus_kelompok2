@@ -13,6 +13,7 @@ Proyek ini adalah aplikasi pemesanan tiket bus berbasis **Vue.js (frontend)**, *
 - **Queue**: RabbitMQ
 - **Cache**: Redis
 - **Logging**: Worker logging async via queue
+- **Storage**: Supabase untuk menyimpan image
 
 ---
 
@@ -21,5 +22,4 @@ Proyek ini adalah aplikasi pemesanan tiket bus berbasis **Vue.js (frontend)**, *
 ### 1. Clone proyek
 
 ```bash
-git clone 
-cd easybus
+git clone

@@ -133,7 +133,7 @@ def laporan_dashboard():
     tiket_diterima = cursor.fetchone()[0]
 
     # Total pengguna
-    cursor.execute("SELECT COUNT(*) FROM user WHERE role = 'user'")
+    cursor.execute("SELECT COUNT(*) FROM user WHERE role = 'customer'")
     total_user = cursor.fetchone()[0]
 
     # Total pendapatan

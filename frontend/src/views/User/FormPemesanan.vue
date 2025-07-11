@@ -98,7 +98,7 @@ export default {
             },
           });
 
-        const id_pemesanan = resPemesanan.data.data[0].id_pemesanan;
+        const id_pemesanan_list = resPemesanan.data.data.map(item => item.id_pemesanan);
 
         // 2. Upload ke Supabase Storage
         const file = this.bookingForm.buktiPembayaran;
@@ -120,14 +120,13 @@ export default {
 
         // 4. Kirim URL ke backend
         await axios.post("/api/upload-bukti", {
-          id_pemesanan: id_pemesanan,
+          id_pemesanan_list: id_pemesanan_list,
           url: fileUrl,
-        },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         Swal.fire("Berhasil", "Pemesanan berhasil! Menunggu verifikasi pembayaran.", "success");
         this.$router.push("/riwayat-pemesanan");

@@ -25,7 +25,7 @@
           <div class="col-md-3">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title">Total User</h5>
+                <h5 class="card-title">Total Customer</h5>
                 <p class="card-text">{{ laporan.total_user }}</p>
               </div>
             </div>
@@ -60,7 +60,7 @@ export default {
   methods: {
     async getLaporan() {
       try {
-        const response = await axios.get("/api/laporan");
+        const response = await axios.get("/api/admin/laporan");
         this.laporan = response.data;
       } catch (error) {
         Swal.fire({
