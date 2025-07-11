@@ -59,6 +59,7 @@ def pesan_tiket():
         cursor.execute("UPDATE pemesanan SET kode_tiket = %s WHERE id_pemesanan = %s", (kode_tiket, id_pemesanan))
 
         tiket_dibuat.append({
+            'id_pemesanan': id_pemesanan,
             'nama_penumpang': nama,
             'kode_tiket': kode_tiket,
             'total_bayar': total_bayar
@@ -80,7 +81,7 @@ def pesan_tiket():
 @jwt_required()
 def upload_bukti():
     data = request.get_json()
-    url = data.get('url')  # contoh: nama file atau path bukti
+    url = data.get('url') 
     id_pemesanan = data.get('id_pemesanan')
 
     cursor = mysql.connection.cursor()
@@ -90,46 +91,47 @@ def upload_bukti():
     cursor.close()
     return jsonify({'message': 'Bukti pembayaran berhasil diupload'})
 
-@user_bp.route('/etiket', methods=['GET'])
+@user_bp.route('/etiket/<int:id_pemesanan>', methods=['GET'])
 @jwt_required()
-def lihat_etiket():
+def lihat_etiket(id_pemesanan):
     user_id = int(get_jwt_identity())
     cursor = mysql.connection.cursor()
     cursor.execute("""
         SELECT 
-            p.id_pemesanan,
-            p.kode_tiket,
-            p.nama_penumpang,
-            p.total_bayar,
-            j.nama_bus,
-            j.asal,
-            j.tujuan,
-            j.tanggal_berangkat,
-            j.jam_berangkat
+            p.id_pemesanan,         
+            p.kode_tiket,          
+            p.nama_penumpang,      
+            j.nama_bus,            
+            j.asal,                
+            j.tujuan,              
+            j.tanggal_berangkat,   
+            j.jam_berangkat,       
+            j.jam_tiba,            
+            p.total_bayar        
         FROM pemesanan p
         JOIN jadwal_bus j ON p.id_jadwal = j.id_jadwal
-        WHERE p.id_user = %s AND p.status_pembayaran = 'diterima'
-        ORDER BY p.created_at DESC
-    """, (user_id,))
-    rows = cursor.fetchall()
+        WHERE p.id_user = %s AND p.status_pembayaran = 'diterima' AND p.id_pemesanan = %s
+        LIMIT 1
+    """, (user_id, id_pemesanan))
+    row = cursor.fetchone()
     cursor.close()
 
-    hasil = []
-    for row in rows:
-        hasil.append({
-            'id_pemesanan': row[0],
-            'kode_tiket': row[1],
-            'nama_penumpang': row[2],
-            'total_bayar': float(row[3]),
-            'bus': row[4],
-            'asal': row[5],
-            'tujuan': row[6],
-            'tanggal': str(row[7]),
-            'jam_berangkat': str(row[8])
-        })
-
-    return jsonify({'e_tiket': hasil})
-
+    if row:
+        hasil = {
+            'id_pemesanan': row[0],          
+            'kode_tiket': row[1],             # 1. Identitas tiket
+            'nama_penumpang': row[2],         # 2. Identitas penumpang
+            'bus': row[3],                    # 3. Nama bus
+            'asal': row[4],                   # 4. Rute: asal
+            'tujuan': row[5],                 # 5. Rute: tujuan
+            'tanggal': str(row[6]),          # 6. Jadwal: tanggal
+            'jam_berangkat': str(row[7]),    # 7. Jadwal: jam berangkat
+            'jam_tiba': str(row[8]),         # 8. Jadwal: jam tiba
+            'total_bayar': float(row[9]),    # 9. Harga tiket
+        }
+        return jsonify(hasil)
+    else:
+        return jsonify({'error': 'Tiket tidak ditemukan'}), 404
 
 @user_bp.route('/histori', methods=['GET'])
 @jwt_required()
@@ -139,6 +141,7 @@ def histori():
     cursor.execute("""
         SELECT 
             p.id_pemesanan,
+            p.nama_penumpang,
             p.jumlah_tiket,
             p.status_pembayaran,
             p.total_bayar,
@@ -160,16 +163,17 @@ def histori():
     for row in rows:
         hasil.append({
             'id_pemesanan': row[0],
-            'jumlah_tiket': row[1],
-            'status': row[2],
-            'total_bayar': float(row[3]),
-            'tanggal_pesan': str(row[4]),
+            'nama_penumpang': row[1],
+            'jumlah_tiket': row[2],
+            'status': row[3],
+            'total_bayar': float(row[4]),
+            'tanggal_pesan': str(row[5]),
             'jadwal': {
-                'tanggal': str(row[5]),
-                'jam': str(row[6]),
-                'asal': row[7],
-                'tujuan': row[8],
-                'harga_per_tiket': float(row[9])
+                'tanggal': str(row[6]),
+                'jam': str(row[7]),
+                'asal': row[8],
+                'tujuan': row[9],
+                'harga_per_tiket': float(row[10])
             }
         })
     return jsonify({'riwayat': hasil})

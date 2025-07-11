@@ -21,6 +21,7 @@
                 <th>Jam Tiba</th>
                 <th>Jumlah Tiket</th>
                 <th>Total Bayar</th>
+                <th>Bukti Pembayaran</th>
                 <th>Status Pembayaran</th>
                 <th>Aksi</th>
               </tr>
@@ -38,6 +39,7 @@
                 <td>{{ item.jam_tiba }}</td>
                 <td>{{ item.jumlah_tiket }}</td>
                 <td>{{ item.total_bayar }}</td>
+                <td><a :href="item.file_url" target="_blank">Lihat Bukti</a></td>
                 <td class="text-center">
                   <span :class="{
                     'text-warning': item.status_pembayaran === 'pending',
@@ -46,21 +48,15 @@
                   }">{{ item.status_pembayaran }}</span>
                 </td>
                 <td class="text-center">
-                  <button 
-                    v-if="item.status_pembayaran === 'pending'" 
-                    @click="updateStatusPemesanan(item.id_pemesanan, 'diterima')" 
-                    class="btn btn-sm btn-success me-1">
+                  <button v-if="item.status_pembayaran === 'pending'"
+                    @click="updateStatusPemesanan(item.id_pemesanan, 'diterima')" class="btn btn-sm btn-success me-1">
                     <i class="fas fa-check"></i> Terima
                   </button>
-                  <button 
-                    v-if="item.status_pembayaran === 'pending'" 
-                    @click="updateStatusPemesanan(item.id_pemesanan, 'ditolak')" 
-                    class="btn btn-sm btn-danger me-1">
+                  <button v-if="item.status_pembayaran === 'pending'"
+                    @click="updateStatusPemesanan(item.id_pemesanan, 'ditolak')" class="btn btn-sm btn-danger me-1">
                     <i class="fas fa-times"></i> Tolak
                   </button>
-                  <button 
-                    @click="confirmDelete(item)" 
-                    class="btn btn-sm btn-danger">
+                  <button @click="confirmDelete(item)" class="btn btn-sm btn-danger">
                     <i class="fas fa-trash"></i> Hapus
                   </button>
                 </td>
@@ -75,7 +71,8 @@
             Previous
           </button>
           <span>Page {{ currentPage }} of {{ totalPages }}</span>
-          <button :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)" class="btn btn-outline-primary">
+          <button :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)"
+            class="btn btn-outline-primary">
             Next
           </button>
         </div>
@@ -223,7 +220,8 @@ export default {
   width: 100%;
 }
 
-th, td {
+th,
+td {
   padding: 12px;
   text-align: center;
   border: 1px solid #ddd;
@@ -292,15 +290,22 @@ button {
 
 /* Tombol Eksport PDF */
 .btn-outline-light {
-  font-size: 14px; /* Ukuran font tombol */
-  padding: 8px 15px; /* Menyesuaikan ukuran tombol */
-  border-color: #007bff; /* Warna border biru */
-  color: #007bff; /* Warna teks biru */
-  background-color: white; /* Warna latar belakang putih */
+  font-size: 14px;
+  /* Ukuran font tombol */
+  padding: 8px 15px;
+  /* Menyesuaikan ukuran tombol */
+  border-color: #007bff;
+  /* Warna border biru */
+  color: #007bff;
+  /* Warna teks biru */
+  background-color: white;
+  /* Warna latar belakang putih */
 }
 
 .btn-outline-light:hover {
-  background-color: #007bff; /* Warna biru saat hover */
-  color: white; /* Warna teks putih saat hover */
+  background-color: #007bff;
+  /* Warna biru saat hover */
+  color: white;
+  /* Warna teks putih saat hover */
 }
 </style>

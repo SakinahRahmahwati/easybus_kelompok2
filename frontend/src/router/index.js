@@ -5,11 +5,13 @@ const routes = [
     path: '/',
     name: 'Login',
     component: () => import('../views/Auth/LoginView.vue'),
+    meta: { noSidebar: true, noNavbar: true }
   },
   {
     path: '/register',
     name: 'Register',
     component: () => import('../views/Auth/RegisterView.vue'),
+    meta: { noSidebar: true, noNavbar: true }
   },
   {
     path: '/dashboard-admin',
@@ -80,6 +82,12 @@ const routes = [
     path: '/riwayat-pemesanan',
     name: 'RiwayatPemesanan',
     component: () => import('../views/User/RiwayatPemesanan.vue'),
+  },
+    {
+    path: '/cetak-tiket/:id',
+    name: 'CetakTiket',
+    component: () => import('../views/User/CetakTiket.vue'),
+    meta: { noSidebar: true, noNavbar: true }
   },
 ];
 

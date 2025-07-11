@@ -24,15 +24,18 @@
               <tr v-for="(booking, index) in bookings" :key="booking.id_pemesanan">
                 <td>{{ index + 1 }}</td>
                 <td>{{ booking.nama_penumpang }}</td>
-                <td>{{ booking.jadwal.asal }} - {{ booking.jadwal.tujuan }} | {{ booking.jadwal.tanggal }} {{ booking.jadwal.jam }}</td>
+                <td>{{ booking.jadwal.asal }} - {{ booking.jadwal.tujuan }} | {{ booking.jadwal.tanggal }} {{
+                  booking.jadwal.jam }}</td>
                 <td>{{ booking.total_bayar }} IDR</td>
                 <td>
                   <span :class="statusClass(booking.status)">{{ booking.status }}</span>
                 </td>
                 <td>
-                  <router-link v-if="booking.status === 'diterima'" :to="{ name: 'detail-tiket', params: { id: booking.id_pemesanan } }">
-                    <button class="btn btn-sm btn-primary">Lihat e-Tiket</button>
-                  </router-link>
+                  <div v-if="booking.status === 'diterima'" class="d-flex flex-column gap-1">
+                    <router-link :to="{ name: 'CetakTiket', params: { id: booking.id_pemesanan } }">
+                      <button class="btn btn-sm btn-primary w-100">Lihat e-Tiket</button>
+                    </router-link>
+                  </div>
                   <span v-else class="text-muted">-</span>
                 </td>
               </tr>
@@ -69,6 +72,10 @@ export default {
         'text-danger': status === 'ditolak',
         'text-warning': status === 'pending'
       };
+    },
+    cetakTiket(id_pemesanan) {
+      const url = this.$router.resolve({ name: 'CetakTiket', params: { id: id_pemesanan } }).href;
+      window.open(url, '_blank');
     }
   },
   created() {
@@ -103,7 +110,8 @@ export default {
   width: 100%;
 }
 
-th, td {
+th,
+td {
   padding: 12px;
   text-align: center;
   border: 1px solid #ddd;

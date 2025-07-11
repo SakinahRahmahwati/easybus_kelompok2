@@ -33,17 +33,45 @@ export default {
 </script>
 
 <style scoped>
+.navbar {
+  min-height: 38px !important;
+  height: 48px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  background: #fff !important;
+  border-bottom: 1px solid #e0e0e0;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+}
+
+.navbar .container-fluid {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.navbar .navbar-nav {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
 .btn-logout {
-  color: #ffffff; /* Teks putih */
-  background-color: #2c3e50; /* Background biru dongker */
-  padding: 3px 8px; 
-  border-radius: 4px; 
-  text-decoration: none; 
-  font-weight: normal; 
-  font-size: 10px; 
+  color: #ffffff;
+  background-color: #2c3e50;
+  padding: 1px 5px;
+  border-radius: 3px;
+  text-decoration: none;
+  font-weight: normal;
+  font-size: 8px;
+  line-height: 1.2;
+  min-width: 40px;
+  min-height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-logout:hover {
-  background-color: #34495e; /* Biru dongker lebih gelap untuk efek hover */
+  background-color: #34495e;
 }
 </style>

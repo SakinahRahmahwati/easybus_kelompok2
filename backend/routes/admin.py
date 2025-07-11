@@ -51,10 +51,12 @@ def semua_pemesanan():
             p.jumlah_tiket,
             p.total_bayar,
             p.status_pembayaran,
-            p.kode_tiket
+            p.kode_tiket,
+            b.file_path 
             FROM pemesanan p
             JOIN user u ON p.id_user = u.id_user
             JOIN jadwal_bus j ON p.id_jadwal = j.id_jadwal
+            LEFT JOIN bukti_pembayaran b ON p.id_pemesanan = b.id_pemesanan
             ORDER BY p.created_at DESC;
     """)
     rows = cursor.fetchall()
@@ -74,7 +76,8 @@ def semua_pemesanan():
             'jumlah_tiket': row[9],
             'total_bayar': float(row[10]),
             'status_pembayaran': row[11],
-            'kode_tiket': row[12]
+            'kode_tiket': row[12],
+            'file_url': row[13]
         })
     return jsonify({'data': hasil})
 

@@ -51,8 +51,8 @@ export default {
   methods: {
     async getBuktiPembayaran() {
       try {
-        const response = await axios.get("/api/bukti");
-        this.buktiPembayaran = response.data;
+        const response = await axios.get("/api/admin/bukti");
+        this.buktiPembayaran = response.data.data;
       } catch (error) {
         Swal.fire({
           icon: 'error',

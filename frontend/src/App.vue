@@ -1,27 +1,34 @@
 <template>
-  <!-- Tambahkan v-if untuk mengecek kondisi selain Login dan Register -->
-  <div class="wrapper" v-if="$route.name !== 'Login' && $route.name !== 'Register'">
-    <div class="sidebar" data-color="black" data-active-color="danger">
-      <div class="logo" style="background-color: #2c3e50; color: #ecf0f1; display: flex; align-items: center; justify-content: center;">
-        <a class="simple-text logo-mini">
+  <!-- Halaman login dan register -->
+  <div v-if="$route.name === 'Login' || $route.name === 'Register'">
+    <router-view />
+  </div>
+
+  <!-- Layout utama -->
+  <div v-else :class="['wrapper', { 'no-sidebar': $route.meta && $route.meta.noSidebar }]">
+    <!-- Sidebar -->
+    <div
+      class="sidebar"
+      data-color="black"
+      data-active-color="danger"
+      v-if="!($route.meta && $route.meta.noSidebar)"
+    >
+      <div class="logo">
+        <a href="#" class="logo-container">
           <div class="logo-image-small">
-            <img src="assets/img/logo.png" />
+            <img src="/assets/img/logo.png" alt="Logo" />
           </div>
-        </a>
-        <a class="simple-text logo-bold">
-          EasyBus
+          <span class="logo-text">EasyBus</span>
         </a>
       </div>
       <AppSidebar />
     </div>
+
+    <!-- Main panel -->
     <div class="main-panel">
-      <AppNav />
+      <AppNav v-if="!($route.meta && $route.meta.noNavbar)" />
       <router-view />
     </div>
-  </div>
-  <!-- Hanya tampilkan router-view untuk Login atau Register -->
-  <div v-else>
-    <router-view />
   </div>
 </template>
 
@@ -39,44 +46,68 @@ export default {
 </script>
 
 <style scoped>
+/* Global layout */
 #app {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-  background-color: #ffffff;  /* Menambahkan latar belakang putih di sini */
-  min-height: 100vh;  /* Memastikan tinggi halaman penuh */
+  background-color: #ffffff;
+  min-height: 100vh;
   margin: 0;
   padding: 0;
 }
-/* Memastikan latar belakang tetap putih di wrapper dan konten utama */
-.wrapper, .main-panel {
-  background-color: #ffffff !important; /* Memastikan latar belakang putih */
+
+.wrapper,
+.main-panel {
+  background-color: #ffffff !important;
 }
 
-.card, .card-body {
-  background-color: #ffffff !important; /* Mengubah card menjadi putih */
+.card,
+.card-body {
+  background-color: #ffffff !important;
 }
 
+/* Logo */
 .logo {
+  padding: 10px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #2c3e50;
+}
+
+.logo-container {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 10px;
-}
-
-.logo-mini {
-  display: inline-block;
+  text-decoration: none;
 }
 
 .logo-image-small img {
-  width: 40px;  /* Ukuran logo */
-  height: auto;
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  margin-right: 7px;
 }
 
-.logo-bold {
+.logo-text {
+  font-size: 17px;
   font-weight: bold;
-  font-size: 1.5rem;
-  color: #ecf0f1;
-  margin-left: 10px;  /* Memberikan jarak antara logo dan teks */
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+/* Jika sidebar dinonaktifkan via meta */
+.wrapper.no-sidebar .main-panel {
+  margin-left: 0 !important;
+  width: 100% !important;
+}
+
+.wrapper.no-sidebar {
+  display: flex;
+}
+
+.wrapper.no-sidebar .sidebar {
+  display: none;
+  width: 0;
 }
 </style>

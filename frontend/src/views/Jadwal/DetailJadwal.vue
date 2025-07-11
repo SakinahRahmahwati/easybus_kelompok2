@@ -5,17 +5,20 @@
         <h4 class="card-title mb-0 fw-bold">Detail Jadwal Bus</h4>
       </div>
 
-      <div class="card-body">
+      <div class="card-body detail-body">
         <div v-if="jadwal">
-          <h5>{{ jadwal.nama_bus }}</h5>
-          <p><strong>Kota Keberangkatan:</strong> {{ jadwal.asal }}</p>
-          <p><strong>Kota Tujuan:</strong> {{ jadwal.tujuan }}</p>
-          <p><strong>Tanggal Berangkat:</strong> {{ jadwal.tanggal }}</p>
-          <p><strong>Jam Berangkat:</strong> {{ jadwal.jam_berangkat }}</p>
-          <p><strong>Jam Tiba:</strong> {{ jadwal.jam_tiba || 'Belum tersedia' }}</p>
-          <p><strong>Harga:</strong> IDR {{ jadwal.harga.toLocaleString() }}</p>
-          <p><strong>Total Kursi:</strong> {{ jadwal.total_kursi }}</p>
-          <p><strong>Kursi Tersedia:</strong> {{ jadwal.kursi_tersedia }}</p>
+          <h5 class="text-dark">{{ jadwal.nama_bus }}</h5>
+          <p class="text-dark"><strong>Kota Keberangkatan:</strong> {{ jadwal.asal }}</p>
+          <p class="text-dark"><strong>Kota Tujuan:</strong> {{ jadwal.tujuan }}</p>
+          <p class="text-dark"><strong>Tanggal Berangkat:</strong> {{ jadwal.tanggal }}</p>
+          <p class="text-dark"><strong>Jam Berangkat:</strong> {{ jadwal.jam_berangkat }}</p>
+          <p class="text-dark"><strong>Jam Tiba:</strong> {{ jadwal.jam_tiba || 'Belum tersedia' }}</p>
+          <p class="text-dark"><strong>Harga:</strong> IDR {{ jadwal.harga.toLocaleString() }}</p>
+          <p class="text-dark"><strong>Total Kursi:</strong> {{ jadwal.total_kursi }}</p>
+          <p class="text-dark"><strong>Kursi Tersedia:</strong> {{ jadwal.kursi_tersedia }}</p>
+          <div class="text-center mt-4">
+            <button class="btn btn-primary" @click="pilihJadwal">Pilih</button>
+          </div>
         </div>
         <div v-else>
           <p>Loading...</p>
@@ -50,6 +53,13 @@ export default {
         });
       }
     },
+    pilihJadwal() {
+      // Kirim data jadwal ke form pemesanan via query string
+      this.$router.push({
+        path: '/form-pemesanan',
+        query: { bus: JSON.stringify(this.jadwal) }
+      });
+    }
   },
   mounted() {
     this.ambilJadwal();
@@ -73,10 +83,14 @@ export default {
   font-size: 16px;
 }
 
-.card-body {
+.detail-body {
   background-color: #f9f9f9;
   border-radius: 12px;
   padding: 20px;
+}
+
+.text-dark {
+  color: #222 !important;
 }
 
 h5 {

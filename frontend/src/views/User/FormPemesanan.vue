@@ -6,34 +6,40 @@
       </div>
       <div class="card-body">
         <form @submit.prevent="submitBooking">
+          <!-- Input Jumlah Kursi -->
           <div class="form-group mb-3">
-            <label for="nama">Nama Penumpang</label>
-            <input type="text" id="nama" v-model="bookingForm.nama" class="form-control" required />
+            <label for="seatCount">Jumlah Kursi</label>
+            <input type="number" id="seatCount" v-model.number="bookingForm.seatCount" class="form-control" min="1"
+              @change="generatePassengerFields" required />
+          </div>
+
+          <!-- Input Nama Penumpang -->
+          <div v-for="(nama, index) in bookingForm.nama_penumpang" :key="index" class="form-group mb-3">
+            <label :for="'nama-' + index">Nama Penumpang {{ index + 1 }}</label>
+            <input type="text" class="form-control" v-model="bookingForm.nama_penumpang[index]" required />
+          </div>
+
+          <!-- Input Info Jadwal (Readonly) -->
+          <div class="form-group mb-3">
+            <label>Nama Bus</label>
+            <input type="text" class="form-control" :value="selectedBus.nama_bus" readonly />
           </div>
 
           <div class="form-group mb-3">
-            <label for="seatCount">Jumlah Tiket</label>
-            <input type="number" id="seatCount" v-model.number="bookingForm.seatCount" class="form-control" min="1" required />
+            <label>Jam Berangkat</label>
+            <input type="text" class="form-control" :value="selectedBus.jam_berangkat" readonly />
           </div>
 
           <div class="form-group mb-3">
-            <label for="busName">Nama Bus</label>
-            <input type="text" id="busName" v-model="selectedBus.nama_bus" class="form-control" readonly />
+            <label>Total Bayar</label>
+            <input type="text" class="form-control" :value="totalBayar + ' IDR'" readonly />
           </div>
 
-          <div class="form-group mb-3">
-            <label for="departureTime">Jam Berangkat</label>
-            <input type="text" id="departureTime" v-model="selectedBus.jam_berangkat" class="form-control" readonly />
-          </div>
-
-          <div class="form-group mb-3">
-            <label for="totalBayar">Total Bayar</label>
-            <input type="text" id="totalBayar" :value="totalBayar + ' IDR'" class="form-control" readonly />
-          </div>
-
+          <!-- Upload Bukti Pembayaran -->
           <div class="mb-3">
-            <label for="paymentProof">Unggah Bukti Pembayaran</label>
-            <input type="file" id="paymentProof" accept="image/*" @change="handleFileChange" class="form-control" required />
+            <label for="paymentProof">Unggah Bukti Pembayaran (Nama File akan dikirim)</label>
+            <input type="file" id="paymentProof" accept="image/*" @change="handleFileChange" class="form-control"
+              required />
           </div>
 
           <div class="text-center">
@@ -50,15 +56,16 @@
 <script>
 import axios from "axios";
 import Swal from "sweetalert2";
+import { supabase } from "@/supabase";
 
 export default {
   data() {
     return {
       selectedBus: this.$route.query.bus ? JSON.parse(this.$route.query.bus) : {},
       bookingForm: {
-        nama: "",
         seatCount: 1,
-        buktiPembayaran: null
+        nama_penumpang: [""],
+        buktiPembayaran: null,
       },
       isSubmitting: false,
     };
@@ -66,50 +73,74 @@ export default {
   computed: {
     totalBayar() {
       return this.selectedBus.harga * this.bookingForm.seatCount;
-    }
+    },
   },
   methods: {
+    generatePassengerFields() {
+      this.bookingForm.nama_penumpang = Array.from({ length: this.bookingForm.seatCount }, (_, i) => this.bookingForm.nama_penumpang[i] || "");
+    },
     handleFileChange(event) {
       this.bookingForm.buktiPembayaran = event.target.files[0];
     },
-
-    uploadBukti(file) {
-      return new Promise((resolve) => {
-        // Simulasi upload ke server/file hosting
-        const dummyUrl = 'https://your-storage.com/uploads/' + file.name;
-        resolve(dummyUrl);
-      });
-    },
-
     async submitBooking() {
       this.isSubmitting = true;
 
-      const namaList = Array(this.bookingForm.seatCount).fill(this.bookingForm.nama);
-
       try {
-        const res = await axios.post('/api/pemesanan', {
-          id_jadwal: this.selectedBus.id_jadwal,
-          nama_penumpang: namaList
-        });
+        const token = localStorage.getItem("token");
+        // 1. Kirim data pemesanan ke backend dulu
+        const resPemesanan = await axios.post("/api/pemesanan", {
+          id_jadwal: this.selectedBus.id_jadwal || this.selectedBus.id,
+          nama_penumpang: this.bookingForm.nama_penumpang,
+        },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
-        const idPemesanan = res.data.data[0].id_pemesanan;
-        const uploadedUrl = await this.uploadBukti(this.bookingForm.buktiPembayaran);
+        const id_pemesanan = resPemesanan.data.data[0].id_pemesanan;
 
-        await axios.post('/api/upload-bukti', {
-          id_pemesanan: idPemesanan,
-          url: uploadedUrl
-        });
+        // 2. Upload ke Supabase Storage
+        const file = this.bookingForm.buktiPembayaran;
+        const filePath = `public/bukti-${Date.now()}-${file.name}`;
 
-        Swal.fire("Berhasil", "Pemesanan berhasil! Menunggu verifikasi.", "success");
+        const { error } = await supabase.storage
+          .from("easybusbuktiupload")
+          .upload(filePath, file);
+
+        if (error) throw error;
+
+        // 3. Dapatkan public URL file
+        const { data } = supabase.storage
+          .from("easybusbuktiupload")
+          .getPublicUrl(filePath);
+
+        const fileUrl = data.publicUrl;
+
+
+        // 4. Kirim URL ke backend
+        await axios.post("/api/upload-bukti", {
+          id_pemesanan: id_pemesanan,
+          url: fileUrl,
+        },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+        Swal.fire("Berhasil", "Pemesanan berhasil! Menunggu verifikasi pembayaran.", "success");
         this.$router.push("/riwayat-pemesanan");
-      } catch (err) {
-        Swal.fire("Gagal", "Terjadi kesalahan saat memesan.", "error");
-        console.error(err);
+
+      } catch (error) {
+        console.error(error);
+        Swal.fire("Gagal", "Terjadi kesalahan saat pemesanan.", "error");
       } finally {
         this.isSubmitting = false;
       }
     }
-  }
+
+  },
 };
 </script>
 
