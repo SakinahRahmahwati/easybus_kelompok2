@@ -38,12 +38,24 @@ def dashboard():
 def semua_pemesanan():
     cursor = mysql.connection.cursor()
     cursor.execute("""
-        SELECT p.id_pemesanan, u.nama, p.nama_penumpang, j.nama_bus, j.tanggal_berangkat,
-               p.total_bayar, p.status_pembayaran, p.kode_tiket
-        FROM pemesanan p
-        JOIN user u ON p.id_user = u.id_user
-        JOIN jadwal_bus j ON p.id_jadwal = j.id_jadwal
-        ORDER BY p.created_at DESC
+        SELECT 
+            p.id_pemesanan,
+            u.nama,
+            p.nama_penumpang,
+            j.nama_bus,
+            j.tanggal_berangkat,
+            j.jam_berangkat,
+            j.jam_tiba,
+            j.asal,
+            j.tujuan,
+            p.jumlah_tiket,
+            p.total_bayar,
+            p.status_pembayaran,
+            p.kode_tiket
+            FROM pemesanan p
+            JOIN user u ON p.id_user = u.id_user
+            JOIN jadwal_bus j ON p.id_jadwal = j.id_jadwal
+            ORDER BY p.created_at DESC;
     """)
     rows = cursor.fetchall()
     cursor.close()
@@ -55,9 +67,14 @@ def semua_pemesanan():
             'nama_penumpang': row[2],
             'bus': row[3],
             'tanggal': str(row[4]),
-            'total_bayar': float(row[5]),
-            'status': row[6],
-            'kode_tiket': row[7]
+            'jam_berangkat': str(row[5]),
+            'jam_tiba': str(row[6]),
+            'asal': row[7],
+            'tujuan': row[8],
+            'jumlah_tiket': row[9],
+            'total_bayar': float(row[10]),
+            'status_pembayaran': row[11],
+            'kode_tiket': row[12]
         })
     return jsonify({'data': hasil})
 

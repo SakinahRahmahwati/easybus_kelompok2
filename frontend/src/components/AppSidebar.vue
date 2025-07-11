@@ -23,11 +23,12 @@ export default {
     filteredMenu() {
       const menuItems = [
         { name: "Dashboard", path: "/dashboard-admin", icon: "nc-icon nc-tv-2", roles: ["admin"] },
-        { name: "Daftar Booking", path: "/daftar-bookingan", icon: "nc-icon nc-calendar-60", roles: ["admin"] },
-        { name: "Daftar Tiket", path: "/daftar-tiket", icon: "nc-icon nc-tile-56", roles: ["admin"] },
+        { name: "Daftar Pemesanan", path: "/daftar-pemesanan", icon: "nc-icon nc-calendar-60", roles: ["admin"] },
+        { name: "Bukti Pembayaran", path: "/bukti-pembayaran", icon: "nc-icon nc-credit-card", roles: ["admin"] },
+        { name: "Daftar Jadwal", path: "/daftar-jadwal", icon: "nc-icon nc-tile-56", roles: ["admin"] },
         { name: "User", path: "/user", icon: "nc-icon nc-badge", roles: ["admin"] },
-        { name: "Riwayat Booking", path: "/riwayat-booking", icon: "nc-icon nc-badge", roles: ["customer"] },
-        { name: "Tiket Pengguna", path: "/tiket-pengguna", icon: "nc-icon nc-badge", roles: ["customer"] },
+        { name: "Riwayat Booking", path: "/riwayat-pemesanan", icon: "nc-icon nc-badge", roles: ["customer"] },
+        { name: "Cari Tiket", path: "/cari-jadwal", icon: "nc-icon nc-badge", roles: ["customer"] },
       ];
 
       return menuItems.filter((item) => item.roles.includes(this.userRole)); // Filter menu berdasarkan role pengguna
