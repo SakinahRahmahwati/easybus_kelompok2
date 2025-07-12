@@ -4,7 +4,7 @@
       <div class="card-header text-white py-3 d-flex justify-content-between align-items-center">
         <h4 class="card-title mb-0 fw-bold">Daftar Pemesanan Customer</h4>
         <button @click="exportPDF" class="btn btn-outline-light">
-          <i class="fas fa-file-pdf me-2"></i> EKSPOR PDF
+          Lihat Laporan
         </button>
       </div>
 

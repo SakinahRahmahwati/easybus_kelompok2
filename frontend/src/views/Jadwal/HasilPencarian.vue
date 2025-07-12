@@ -33,8 +33,8 @@
             <div class="bus-info">
               <h5>{{ bus.nama_bus }}</h5>
               <div class="bus-schedule">
-                <span class="departure-time">{{ bus.jam_berangkat }} - {{ bus.jam_tiba }}</span>
-                <span class="seats">{{ bus.kursi_tersedia }} kursi tersedia</span>
+                <p class="departure-time mb-1">{{ bus.jam_berangkat }} - {{ bus.jam_tiba }}</p>
+                <p class="seats mb-0">{{ bus.kursi_tersedia }} kursi tersedia</p>
               </div>
             </div>
 

@@ -36,7 +36,7 @@
                     <i class="fas fa-trash-alt"></i>
                   </button>
                 </td>
-              </tr>   
+              </tr>
             </tbody>
           </table>
         </div>
@@ -73,9 +73,11 @@ export default {
     // Fungsi untuk mengonfirmasi penghapusan user
     confirmDelete(user) {
       const userId = localStorage.getItem('user_id');
-      
+
       // Validasi jika user yang sedang login dan user yang ingin dihapus sama
       if (user.id_user === parseInt(userId)) {
+        Swal.fire('Error', 'Tidak dapat menghapus user yang sedang aktif', 'error');
+      } else {
         Swal.fire({
           title: 'Apakah Anda yakin?',
           text: `User ${user.nama} akan dihapus!`,
@@ -87,12 +89,10 @@ export default {
           cancelButtonText: 'Batal',
         }).then((result) => {
           if (result.isConfirmed) {
-            this.deleteUser(user.id_user); // Menghapus user berdasarkan id_user
+            this.deleteUser(user.id_user);
             Swal.fire('Dihapus!', 'User telah berhasil dihapus.', 'success');
           }
         });
-      } else {
-        Swal.fire('Error', 'Tidak dapat menghapus user yang sedang aktif', 'error');
       }
     },
 
@@ -137,7 +137,8 @@ export default {
   width: 100%;
 }
 
-th, td {
+th,
+td {
   padding: 12px;
   text-align: center;
   border: 1px solid #ddd;

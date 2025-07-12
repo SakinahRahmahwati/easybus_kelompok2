@@ -107,7 +107,7 @@ export default {
             timer: 2000,
             showConfirmButton: false,
           }).then(() => {
-            this.$router.push('/login');
+            this.$router.push('/');
           });
         }
       } catch (err) {

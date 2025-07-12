@@ -10,60 +10,48 @@
             <form @submit.prevent="simpanJadwal">
               <div class="mb-3">
                 <label for="namaBus" class="form-label label-bold">Nama Bus</label>
-                <input
-                  id="namaBus"
-                  v-model="jadwalBaru.nama_bus"
-                  class="form-control"
-                  type="text"
-                  placeholder="Masukkan Nama Bus"
-                  required
-                />
+                <input id="namaBus" v-model="jadwalBaru.nama_bus" class="form-control" type="text"
+                  placeholder="Masukkan Nama Bus" required />
               </div>
 
               <div class="mb-3">
                 <label for="asal" class="form-label label-bold">Kota Keberangkatan</label>
-                <input
-                  id="asal"
-                  v-model="jadwalBaru.asal"
-                  class="form-control"
-                  type="text"
-                  placeholder="Masukkan Kota Keberangkatan"
-                  required
-                />
+                <input id="asal" v-model="jadwalBaru.asal" class="form-control" type="text"
+                  placeholder="Masukkan Kota Keberangkatan" required />
               </div>
 
               <div class="mb-3">
                 <label for="tujuan" class="form-label label-bold">Kota Tujuan</label>
-                <input
-                  id="tujuan"
-                  v-model="jadwalBaru.tujuan"
-                  class="form-control"
-                  type="text"
-                  placeholder="Masukkan Kota Tujuan"
-                  required
-                />
+                <input id="tujuan" v-model="jadwalBaru.tujuan" class="form-control" type="text"
+                  placeholder="Masukkan Kota Tujuan" required />
               </div>
 
               <div class="mb-3">
                 <label for="tanggalBerangkat" class="form-label label-bold">Tanggal Keberangkatan</label>
-                <input
-                  id="tanggalBerangkat"
-                  v-model="jadwalBaru.tanggal_berangkat"
-                  class="form-control"
-                  type="date"
-                  required
-                />
+                <input id="tanggalBerangkat" v-model="jadwalBaru.tanggal_berangkat" class="form-control" type="date"
+                  required />
               </div>
 
               <div class="mb-3">
                 <label for="jamBerangkat" class="form-label label-bold">Jam Keberangkatan</label>
-                <input
-                  id="jamBerangkat"
-                  v-model="jadwalBaru.jam_berangkat"
-                  class="form-control"
-                  type="time"
-                  required
-                />
+                <input id="jamBerangkat" v-model="jadwalBaru.jam_berangkat" class="form-control" type="time" required />
+              </div>
+
+              <div class="mb-3">
+                <label for="jamTiba" class="form-label label-bold">Jam Tiba</label>
+                <input id="jamTiba" v-model="jadwalBaru.jam_tiba" class="form-control" type="time" required />
+              </div>
+
+              <div class="mb-3">
+                <label for="harga" class="form-label label-bold">Harga Tiket</label>
+                <input id="harga" v-model="jadwalBaru.harga" class="form-control" type="number"
+                  placeholder="Masukkan Harga Tiket" required />
+              </div>
+
+              <div class="mb-3">
+                <label for="totalKursi" class="form-label label-bold">Total Kursi</label>
+                <input id="totalKursi" v-model="jadwalBaru.total_kursi" class="form-control" type="number"
+                  placeholder="Masukkan Total Kursi" required />
               </div>
 
               <div class="text-center">
@@ -93,21 +81,21 @@ export default {
         tanggal_berangkat: "",
         jam_berangkat: "",
         jam_tiba: "",
-        harga: 0,
-        total_kursi: 0,
-        kursi_tersedia: 0,
+        harga: "",
+        total_kursi: "",
+        kursi_tersedia: "",
       },
       isSubmitting: false,
     };
   },
   methods: {
     async simpanJadwal() {
-      const dataJadwal = { ...this.jadwalBaru };
+      const dataJadwal = { ...this.jadwalBaru, kursi_tersedia: this.jadwalBaru.total_kursi };
 
       try {
         this.isSubmitting = true;
         await axios.post("/api/admin/jadwal", dataJadwal);
-        this.$router.push("/jadwal"); // Redirect ke halaman daftar jadwal setelah berhasil
+        this.$router.push("/daftar-jadwal"); // Redirect ke halaman daftar jadwal setelah berhasil
         Swal.fire({
           icon: 'success',
           title: 'Jadwal Berhasil Ditambahkan',

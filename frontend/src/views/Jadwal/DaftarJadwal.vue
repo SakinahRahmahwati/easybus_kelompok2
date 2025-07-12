@@ -44,12 +44,12 @@
                 <td>{{ jadwal.total_kursi }}</td>
                 <td>{{ jadwal.kursi_tersedia }}</td>
                 <td class="text-center">
-                  <router-link :to="{ name: 'edit-jadwal', params: { id: jadwal.id_jadwal } }">
+                  <router-link :to="{ name: 'EditJadwal', params: { id: jadwal.id } }">
                     <button class="btn btn-sm btn-warning">
                       <i class="fas fa-edit"></i> Edit
                     </button>
                   </router-link>
-                  <button @click="hapusJadwal(jadwal.id_jadwal)" class="btn btn-sm btn-danger">
+                  <button @click="confirmHapusJadwal(jadwal)" class="btn btn-sm btn-danger">
                     <i class="fas fa-trash-alt"></i> Hapus
                   </button>
                 </td>
@@ -84,6 +84,23 @@ export default {
           text: 'Terjadi kesalahan saat mengambil data jadwal.',
         });
       }
+    },
+
+    confirmHapusJadwal(jadwal) {
+      Swal.fire({
+        title: 'Apakah Anda yakin?',
+        text: `Jadwal bus "${jadwal.nama_bus}" akan dihapus!`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Hapus',
+        cancelButtonText: 'Batal',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.hapusJadwal(jadwal.id); // Pastikan field ID sesuai
+        }
+      });
     },
 
     async hapusJadwal(id) {
@@ -136,7 +153,8 @@ export default {
   width: 100%;
 }
 
-th, td {
+th,
+td {
   padding: 12px;
   text-align: center;
   border: 1px solid #ddd;

@@ -9,18 +9,49 @@
           <div class="card-body">
             <form @submit.prevent="updateJadwal">
               <div class="mb-3">
-                <label for="namaBus" class="form-label label-bold">Nama Bus</label>
-                <input
-                  id="namaBus"
-                  v-model="jadwalEdit.nama_bus"
-                  class="form-control"
-                  type="text"
-                  placeholder="Masukkan Nama Bus"
-                  required
-                />
+                <label class="form-label">Nama Bus</label>
+                <input v-model="jadwalEdit.nama_bus" type="text" class="form-control" required />
               </div>
 
-              <!-- Add other form fields here -->
+              <div class="mb-3">
+                <label class="form-label">Asal</label>
+                <input v-model="jadwalEdit.asal" type="text" class="form-control" required />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Tujuan</label>
+                <input v-model="jadwalEdit.tujuan" type="text" class="form-control" required />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Tanggal Berangkat</label>
+                <input v-model="jadwalEdit.tanggal_berangkat" type="date" class="form-control" required />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Jam Berangkat</label>
+                <input v-model="jadwalEdit.jam_berangkat" type="time" class="form-control" required />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Jam Tiba</label>
+                <input v-model="jadwalEdit.jam_tiba" type="time" class="form-control" />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Harga (IDR)</label>
+                <input v-model.number="jadwalEdit.harga" type="number" class="form-control" required />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Total Kursi</label>
+                <input v-model.number="jadwalEdit.total_kursi" type="number" class="form-control" required />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Kursi Tersedia</label>
+                <input v-model.number="jadwalEdit.kursi_tersedia" type="number" class="form-control" required />
+              </div>
 
               <div class="text-center">
                 <button type="submit" class="btn btn-dongker" :disabled="isSubmitting">
@@ -37,12 +68,13 @@
 
 <script>
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export default {
   data() {
     return {
       jadwalEdit: {
-        id_jadwal: "",
+        id: "",
         nama_bus: "",
         asal: "",
         tujuan: "",
@@ -68,13 +100,23 @@ export default {
     },
 
     async updateJadwal() {
-      const id = this.jadwalEdit.id_jadwal;
+      const id = this.jadwalEdit.id;
       try {
         this.isSubmitting = true;
         await axios.put(`/api/admin/jadwal/${id}`, this.jadwalEdit);
-        this.$router.push("/jadwal"); // Redirect setelah berhasil
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil',
+          text: 'Jadwal berhasil diperbarui.',
+        });
+        this.$router.push("/daftar-jadwal");
       } catch (error) {
         console.error("Error memperbarui jadwal:", error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal',
+          text: 'Terjadi kesalahan saat memperbarui data.',
+        });
       } finally {
         this.isSubmitting = false;
       }
@@ -87,7 +129,6 @@ export default {
 </script>
 
 <style scoped>
-/* Styling untuk card header */
 .bg-dongker {
   background-color: #2c3e50 !important;
   color: white;
@@ -96,7 +137,6 @@ export default {
   margin-bottom: 20px;
 }
 
-/* Styling untuk card body */
 .card-body {
   background-color: #f9f9f9;
   border-radius: 10px;
@@ -104,7 +144,6 @@ export default {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Styling untuk input form */
 .form-control {
   padding: 10px;
   font-size: 1rem;
@@ -113,14 +152,12 @@ export default {
   margin-bottom: 10px;
 }
 
-/* Styling untuk label form */
 .form-label {
   font-weight: bold;
   font-size: 1rem;
   margin-bottom: 8px;
 }
 
-/* Styling untuk button */
 button {
   background-color: #34495e;
   color: white;
